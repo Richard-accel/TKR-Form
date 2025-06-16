@@ -19,7 +19,8 @@ if uploaded_file:
     # -----------------------
     st.header("📊 Score Distributions")
 
-    col1, col2, col3, col4 = st.columns(4)
+    # First row with 3 columns
+    col1, col2, col3 = st.columns(3)
 
     with col1:
         st.markdown("**🩺 Pain VAS (0–10)**")
@@ -38,7 +39,7 @@ if uploaded_file:
     with col2:
         st.markdown("**😊 Patient Satisfaction (1–5)**")
         psat_counts = df['patient_satisfaction'].dropna().astype(int).value_counts().sort_index()
-        psat_range = list(range(1, 5))
+        psat_range = list(range(1, 6))  # Should go up to 5
         psat_counts = psat_counts.reindex(psat_range, fill_value=0)
         fig_psat = px.bar(
             x=psat_counts.values,
@@ -52,7 +53,7 @@ if uploaded_file:
     with col3:
         st.markdown("**🧑‍⚕️ Caregiver Satisfaction (1–5)**")
         csat_counts = df['caregiver_satisfaction'].dropna().astype(int).value_counts().sort_index()
-        csat_range = list(range(1, 5))
+        csat_range = list(range(1, 6))  # Should go up to 5
         csat_counts = csat_counts.reindex(csat_range, fill_value=0)
         fig_csat = px.bar(
             x=csat_counts.values,
@@ -63,21 +64,20 @@ if uploaded_file:
         )
         st.plotly_chart(fig_csat, use_container_width=True)
 
-    with col4:
-        st.markdown("**🏥 Length of Stay**")
-        los_data = df['length_of_stay'].dropna()
-        fig_los = px.histogram(
-            los_data,
-            nbins=len(los_data.unique()),
-            labels={"value": "Days", "count": "Patients"},
-            height=300
-        )
-        # Add black outline to bars
-        fig_los.update_traces(
-            marker_line_color='black',
-            marker_line_width=1.5
-        )
-        st.plotly_chart(fig_los, use_container_width=True)
+    # New section (next row)
+    st.markdown("### 🏥 Length of Stay")
+    los_data = df['length_of_stay'].dropna()
+    fig_los = px.histogram(
+        los_data,
+        nbins=len(los_data.unique()),
+        labels={"value": "Days", "count": "Patients"},
+        height=300
+    )
+    fig_los.update_traces(
+        marker_line_color='black',
+        marker_line_width=1.5
+    )
+    st.plotly_chart(fig_los, use_container_width=True)
 
     # -----------------------
     st.subheader("🧬 Complications")
