@@ -59,7 +59,6 @@ def extract_by_linkid(items, linkid):
     return None
 
 
-
 def list_all_linkids(items, level=0):
     if not isinstance(items, list):
         return
@@ -67,6 +66,23 @@ def list_all_linkids(items, level=0):
         st.write("  " * level + f"linkId: {item.get('linkId')}")
         if "item" in item:
             list_all_linkids(item["item"], level + 1)
+
+
+def extract_signature_data(items):
+    for item in items:
+        if item.get("linkId") == "Wzw_ds6Q" and "answer" in item:
+            value = item["answer"][0].get("value", {})
+            attachment = value.get("Attachment")
+            if attachment and "data" in attachment:
+                return "data:image/png;base64," + attachment["data"]
+
+        # Recursively check nested items
+        if "item" in item:
+            nested = extract_signature_data(item["item"])
+            if nested:
+                return nested
+    return None
+
 
 # Usage:
 # list_all_linkids(response["resource"]["item"])
@@ -125,7 +141,8 @@ def parse_response(response):
         "flexion_range": extract_by_linkid(item, "rom-flexion-range"),
         "flexion_contracture_deductions": extract_by_linkid(item, "functional-clinical-assessment-flexion-deduction"),
         "extensor_lag_deductions": extract_by_linkid(item, "functional-clinical-assessment-extensor-deduction"),
-        "morse_fall_risk_scale": extract_by_linkid(item, "functional-clinical-assessment-morse-fall")
+        "morse_fall_risk_scale": extract_by_linkid(item, "functional-clinical-assessment-morse-fall"),
+         "signature_base64": extract_signature_data(item)
     }
 
 # --- STREAMLIT APP ---
@@ -155,6 +172,4 @@ if st.button("Load data"):
 
         except Exception as e:
             st.error(f"❌ Error: {e}")
-
-
 
